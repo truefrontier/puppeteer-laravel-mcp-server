@@ -12,6 +12,7 @@
   },
   "files": [
     "dist/**/*",
+    "package.json",
     "README.md",
     "LICENSE"
   ],

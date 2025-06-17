@@ -154,7 +154,7 @@ This project is optimized for iterative debugging with Claude Code:
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd puppeteer-mcp-server
+cd puppeteer-laravel-mcp-server
 
 # Install dependencies
 npm install

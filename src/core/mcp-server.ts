@@ -11,6 +11,13 @@ import { PuppeteerTools } from '../tools/puppeteer-tools.js';
 import { LaravelHerdIntegration } from '../laravel/herd-integration.js';
 import { serverConfig } from './config.js';
 import { BrowserInstance } from './types.js';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const packageJson = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf-8'));
 
 export class PuppeteerMCPServer {
   private server: Server;
@@ -20,8 +27,8 @@ export class PuppeteerMCPServer {
   constructor() {
     this.server = new Server(
       {
-        name: 'puppeteer-mcp-server',
-        version: '1.0.0',
+        name: 'puppeteer-laravel-mcp-server',
+        version: packageJson.version,
       },
       {
         capabilities: {
