@@ -53,3 +53,7 @@ The server should provide compatibility with:
 - ChromeDriver management (handled by Herd)
 - Authentication testing helpers
 - Database seeding and rollback capabilities
+
+## Testing Notes
+
+- To test this MCP server, you must `echo <the json-rpc> | node /abs/path/to/dist/index.js > server.log 2>&1 &`
