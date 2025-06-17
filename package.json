@@ -1,6 +1,6 @@
 {
   "name": "@truefrontier/puppeteer-laravel-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A Model Context Protocol server for Laravel Herd browser automation using Puppeteer",
   "main": "dist/index.js",
   "type": "module",
