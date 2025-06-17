@@ -1,0 +1,48 @@
+{
+  "name": "puppeteer-mcp-server",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol server for Laravel Herd browser automation using Puppeteer",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "dev": "tsc --watch & nodemon dist/index.js",
+    "test": "jest",
+    "test:unit": "jest --testPathPattern=unit",
+    "test:integration": "jest --testPathPattern=integration",
+    "test:visual": "jest --testPathPattern=visual",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "puppeteer",
+    "laravel",
+    "herd",
+    "browser-automation",
+    "testing"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.3",
+    "@types/uuid": "^10.0.0",
+    "dotenv": "^16.5.0",
+    "generic-pool": "^3.9.0",
+    "puppeteer": "^24.10.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.34.1",
+    "@typescript-eslint/parser": "^8.34.1",
+    "eslint": "^9.29.0",
+    "jest": "^30.0.0",
+    "nodemon": "^3.1.10",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
+  }
+}
