@@ -38,6 +38,14 @@
   ],
   "author": "",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/truefrontier/puppeteer-laravel-mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/truefrontier/puppeteer-laravel-mcp-server/issues"
+  },
+  "homepage": "https://github.com/truefrontier/puppeteer-laravel-mcp-server#readme",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.3",
     "@types/uuid": "^10.0.0",
