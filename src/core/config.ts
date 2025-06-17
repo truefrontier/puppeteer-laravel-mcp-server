@@ -19,7 +19,7 @@ export const serverConfig: ServerConfig = {
 };
 
 export const browserPoolConfig: BrowserPoolConfig = {
-  min: 2,
+  min: 0,
   max: serverConfig.browserPoolSize,
   acquireTimeoutMillis: 30000,
   createTimeoutMillis: 30000,

@@ -317,7 +317,7 @@ MCP_AUTH_ENABLED=false
 ```json
 {
   "browserPool": {
-    "min": 2,
+    "min": 0,
     "max": 10,
     "acquireTimeoutMillis": 30000,
     "createTimeoutMillis": 30000,
@@ -328,6 +328,8 @@ MCP_AUTH_ENABLED=false
   }
 }
 ```
+
+**Note**: The browser pool is configured with `min: 0` to ensure browsers are only launched when needed through tool calls, not on server startup. This optimizes resource usage and prevents unnecessary browser processes.
 
 ## API Reference
 

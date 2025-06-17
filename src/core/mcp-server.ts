@@ -21,7 +21,7 @@ const packageJson = JSON.parse(readFileSync(join(__dirname, '../../package.json'
 
 export class PuppeteerMCPServer {
   private server: Server;
-  private browserPool: BrowserPool;
+  private browserPool: BrowserPool | null = null;
   private activeSessions: Map<string, { instance: BrowserInstance; tools: PuppeteerTools; laravel: LaravelHerdIntegration }> = new Map();
 
   constructor() {
@@ -37,8 +37,14 @@ export class PuppeteerMCPServer {
       }
     );
 
-    this.browserPool = new BrowserPool();
     this.setupToolHandlers();
+  }
+
+  private async getBrowserPool(): Promise<BrowserPool> {
+    if (!this.browserPool) {
+      this.browserPool = new BrowserPool();
+    }
+    return this.browserPool;
   }
 
   private setupToolHandlers() {
@@ -337,8 +343,9 @@ export class PuppeteerMCPServer {
       throw new Error(`Session already exists: ${sessionId}`);
     }
 
-    const instance = await this.browserPool.acquire();
-    const page = await this.browserPool.createPage(instance);
+    const browserPool = await this.getBrowserPool();
+    const instance = await browserPool.acquire();
+    const page = await browserPool.createPage(instance);
     const tools = new PuppeteerTools(instance, page);
     const laravel = new LaravelHerdIntegration(page, siteName);
 
@@ -365,7 +372,8 @@ export class PuppeteerMCPServer {
     await Promise.all(pages.map(page => page.close()));
 
     // Release browser instance back to pool
-    await this.browserPool.release(session.instance);
+    const browserPool = await this.getBrowserPool();
+    await browserPool.release(session.instance);
     
     this.activeSessions.delete(sessionId);
 
@@ -394,7 +402,8 @@ export class PuppeteerMCPServer {
   }
 
   private async getPoolStats() {
-    const stats = this.browserPool.getStats();
+    const browserPool = await this.getBrowserPool();
+    const stats = browserPool.getStats();
 
     return {
       content: [
@@ -563,8 +572,10 @@ export class PuppeteerMCPServer {
       await this.destroySession(sessionId);
     }
 
-    // Drain browser pool
-    await this.browserPool.drain();
+    // Drain browser pool if it was initialized
+    if (this.browserPool) {
+      await this.browserPool.drain();
+    }
     
     // Close server
     await this.server.close();
