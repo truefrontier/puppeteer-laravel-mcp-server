@@ -145,12 +145,68 @@ This project is optimized for iterative debugging with Claude Code:
 
 ## Installation
 
+### Using npx (Recommended)
+
+For quick setup and testing:
+
+```bash
+# Install and run directly
+npx -y @truefrontier/puppeteer-laravel-mcp-server
+```
+
+### Claude Desktop App Configuration
+
+To use this MCP server with Claude Desktop:
+
+1. **Enable Developer Mode**:
+   - Open Claude Desktop app
+   - Go to Settings → Developer Tab
+   - Enable Developer Mode and click "Edit Config"
+
+2. **Add to claude_desktop_config.json**:
+```json
+{
+  "mcpServers": {
+    "puppeteer-laravel": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@truefrontier/puppeteer-laravel-mcp-server"
+      ]
+    }
+  }
+}
+```
+
+3. **Restart Claude Desktop** for changes to take effect
+
+### Testing with MCP Inspector
+
+Test your server setup using the official MCP inspector:
+
+```bash
+# Test the server directly
+npx @modelcontextprotocol/inspector npx -y @truefrontier/puppeteer-laravel-mcp-server
+
+# Or test with environment variables
+npx @modelcontextprotocol/inspector -e BROWSER_POOL_SIZE=3 npx -y @truefrontier/puppeteer-laravel-mcp-server
+
+# CLI mode for automation
+npx @modelcontextprotocol/inspector --cli npx -y @truefrontier/puppeteer-laravel-mcp-server
+```
+
+The inspector will open a web interface (default: http://localhost:6274) where you can:
+- View all available tools
+- Test tool execution
+- Monitor server responses
+- Debug connection issues
+
 ### Prerequisites
 - Node.js 18+ with npm
 - Laravel Herd (for local development)
 - Chrome/Chromium browser
 
-### Setup
+### Development Setup
 ```bash
 # Clone the repository
 git clone <repository-url>
