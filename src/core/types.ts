@@ -24,6 +24,7 @@ export interface BrowserPoolConfig {
   idleTimeoutMillis: number;
   reapIntervalMillis: number;
   createRetryIntervalMillis: number;
+  autostart: boolean;
 }
 
 export interface BrowserInstance {

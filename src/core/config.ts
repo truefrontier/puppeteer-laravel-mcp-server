@@ -27,6 +27,7 @@ export const browserPoolConfig: BrowserPoolConfig = {
   idleTimeoutMillis: 300000,
   reapIntervalMillis: 1000,
   createRetryIntervalMillis: 200,
+  autostart: false,
 };
 
 export const laravelHerdConfig = {

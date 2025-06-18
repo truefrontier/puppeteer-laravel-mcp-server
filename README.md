@@ -324,12 +324,13 @@ MCP_AUTH_ENABLED=false
     "destroyTimeoutMillis": 5000,
     "idleTimeoutMillis": 300000,
     "reapIntervalMillis": 1000,
-    "createRetryIntervalMillis": 200
+    "createRetryIntervalMillis": 200,
+    "autostart": false
   }
 }
 ```
 
-**Note**: The browser pool is configured with `min: 0` to ensure browsers are only launched when needed through tool calls, not on server startup. This optimizes resource usage and prevents unnecessary browser processes.
+**Note**: The browser pool is configured with `min: 0` and `autostart: false` to ensure browsers are only launched when needed through tool calls, not on server startup. This prevents the MCP health check or status queries from launching browser instances, optimizing resource usage and preventing unnecessary browser processes.
 
 ## API Reference
 
