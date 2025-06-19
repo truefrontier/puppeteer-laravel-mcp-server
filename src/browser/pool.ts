@@ -11,7 +11,7 @@ export class BrowserPool {
   constructor(config: BrowserPoolConfig = browserPoolConfig) {
     this.pool = createPool({
       create: async (): Promise<BrowserInstance> => {
-        const browser = await puppeteer.launch({
+        const launchConfig: any = {
           headless: serverConfig.headless,
           args: [
             '--no-sandbox',
@@ -25,7 +25,14 @@ export class BrowserPool {
             '--disable-backgrounding-occluded-windows',
             '--disable-renderer-backgrounding',
           ],
-        });
+        };
+
+        // Only set executablePath if configured
+        if (serverConfig.chromePath) {
+          launchConfig.executablePath = serverConfig.chromePath;
+        }
+
+        const browser = await puppeteer.launch(launchConfig);
 
         const instance: BrowserInstance = {
           browser,

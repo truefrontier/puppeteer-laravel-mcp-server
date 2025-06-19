@@ -4,6 +4,7 @@ export interface ServerConfig {
   browserPoolSize: number;
   browserTimeout: number;
   headless: boolean;
+  chromePath?: string;
   herdDirectory: string;
   defaultDomainSuffix: string;
   sslEnabled: boolean;

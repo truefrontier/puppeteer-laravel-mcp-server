@@ -7,6 +7,7 @@ export const serverConfig: ServerConfig = {
   browserPoolSize: parseInt(process.env.BROWSER_POOL_SIZE || '5'),
   browserTimeout: parseInt(process.env.BROWSER_TIMEOUT || '30000'),
   headless: process.env.HEADLESS === 'true',
+  chromePath: process.env.CHROME_PATH || undefined,
   herdDirectory: process.env.HERD_DIRECTORY || '~/Herd',
   defaultDomainSuffix: process.env.DEFAULT_DOMAIN_SUFFIX || '.test',
   sslEnabled: process.env.SSL_ENABLED === 'true',
