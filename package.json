@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "puppeteer-laravel-mcp-server": "bin/cli.js"
+    "puppeteer-laravel-mcp-server": "bin/cli.js",
+    "puppeteer-laravel-mcp": "bin/cli.js"
   },
   "publishConfig": {
     "access": "public"
