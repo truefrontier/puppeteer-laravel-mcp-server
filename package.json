@@ -5,23 +5,20 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "puppeteer-laravel-mcp-server": "bin/cli-cjs.cjs",
-    "puppeteer-laravel-mcp": "bin/cli-cjs.cjs"
+    "puppeteer-laravel-mcp-server": "dist/index.js"
   },
   "publishConfig": {
     "access": "public"
   },
   "files": [
-    "dist/**/*",
-    "bin/**/*",
-    "package.json",
-    "README.md",
-    "LICENSE"
+    "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "npm run build",
     "start": "npm run build && node dist/index.js",
     "dev": "tsc --watch & nodemon dist/index.js",
+    "watch": "tsc --watch",
     "test": "jest",
     "test:unit": "jest --testPathPattern=unit",
     "test:integration": "jest --testPathPattern=integration",
@@ -64,6 +61,7 @@
     "eslint": "^9.29.0",
     "jest": "^30.0.0",
     "nodemon": "^3.1.10",
+    "shx": "^0.3.4",
     "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   }
