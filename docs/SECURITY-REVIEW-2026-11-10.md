@@ -7,7 +7,12 @@
   - screenshot paths that climb out of `screenshots/`;
   - page scripts built by pasting strings into source;
   - no argument checks at dispatch, although the README claimed "injection attack prevention".
-- **Ten nice-to-fix items are listed but not changed.** The biggest: Chrome runs with its sandbox turned off, `.env` is read from whatever folder the client starts the server in, and production dependencies carry high and critical advisories.
+- **Ten nice-to-fix items are listed.** The biggest: Chrome runs with its sandbox turned off, `.env` is read from whatever folder the client starts the server in, and production dependencies carry high and critical advisories.
+- **Follow-up branch `overflow/mcp-hardening` (stacked on this one) fixes five more:**
+  - a fifth must-fix: page console text written to stdout, the MCP protocol channel (#16);
+  - the sandbox (#5);
+  - the `.env` folder (#6);
+  - the ignored `guard` (#14).
 - **One functional bug turned up on the way.** Herd has no `artisan` command, so every Artisan-based tool fails against real Herd.
 - **Nothing is published.** Users of `npx @truefrontier/puppeteer-laravel-mcp-server` get these fixes only after a new npm version ships. That is Kevin's call.
 
@@ -62,12 +67,12 @@
 
 ## Nice-to-fix (not changed)
 
-5. **Chrome runs with its sandbox off.**
+5. **Chrome runs with its sandbox off.** *Fixed on `overflow/mcp-hardening`: the sandbox stays on unless `CHROME_NO_SANDBOX=true`. Checked with a headless launch of the installed Chrome.*
    - `src/browser/pool.ts:16-27` passes `--no-sandbox`, `--disable-setuid-sandbox`, `--no-zygote` and `--single-process`.
    - `navigate` opens any URL. So a renderer bug on a hostile page lands in a process with the user's full rights.
    - These flags are meant for Linux containers that run as root. On a Mac they only remove protection.
    - Fix: drop them, then test with a real browser.
-6. **`.env` is read from the current folder.**
+6. **`.env` is read from the current folder.** *Fixed on `overflow/mcp-hardening`: `.env` now loads from the package folder.*
    - `src/core/config.ts:4` calls `dotenv.config()`, which reads `.env` from wherever the MCP client starts the server.
    - `CHROME_PATH` from that file (`config.ts:10`, used at `pool.ts:31-33`) chooses the program Puppeteer launches.
    - If a client starts the server inside an untrusted repo, that repo's `.env` picks what runs.
@@ -104,13 +109,20 @@
     - So `laravel_artisan`, `laravel_db_seed` and the cache and queue helpers all fail with `Command "artisan" is not defined`.
     - Likely fix: run `herd php artisan ...` from the site's folder.
     - I did not check whether `herd` accepts `--site=`.
-14. **The `guard` argument is ignored.**
+14. **The `guard` argument is ignored.** *Fixed on `overflow/mcp-hardening`.*
     - Dispatch passes the raw arguments (`guard`) to `loginAs` and `actingAs`, which read `guardName` (`mcp-server.ts:289`, `:292`; `LaravelAuthConfig` in `src/core/types.ts`).
     - So every login uses the `web` guard.
 15. **`laravel_auth_login` doesn't log in.**
     - It writes `localStorage` and fires a DOM event (`herd-integration.ts:55-90`).
     - Laravel's session login never reads either, so the server-side user doesn't change.
     - The README presents the tool as authentication.
+
+## Found later (follow-up branch `overflow/mcp-hardening`)
+
+16. **Page console text is written to stdout (must-fix, fixed there).**
+    - `src/browser/pool.ts:92` printed every browser console message with `console.log` when `DEBUG_CONSOLE_LOGS=true`, and `.env.example` turns that on.
+    - In stdio mode, stdout is the MCP protocol channel. A page can `console.log("\n{\"jsonrpc\":\"2.0\",...}")` and put a whole forged JSON-RPC message in front of the client: a fake tool result, or a request from the "server."
+    - Fix: page console text goes to stderr. It was the only `console.log` in `src/`.
 
 ## How to check this branch
 
