@@ -1,12 +1,12 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { PuppeteerMCPServer } from './mcp-server.js';
+import { LaravelHerdIntegration } from '../laravel/herd-integration.js';
 
 // Talks to the real server over an in-memory MCP transport. The browser pool is
 // replaced with one that fails loudly, so a call that gets past argument checks
 // shows up as "browser launch attempted" and no browser ever starts.
-async function connect() {
-  const mcp = new PuppeteerMCPServer();
+async function connect(mcp = new PuppeteerMCPServer()) {
   (mcp as any).browserPool = {
     acquire: async () => { throw new Error('browser launch attempted'); },
   };
@@ -49,5 +49,44 @@ describe('tool arguments are checked against inputSchema before anything runs', 
   test('an unknown tool is still reported as unknown', async () => {
     const { text } = await call('nope', {});
     expect(text).toContain('Unknown tool: nope');
+  });
+});
+
+describe('laravel auth tools', () => {
+  test.each([
+    ['laravel_auth_login', { email: 'a@b.test', guard: 'admin' }, ['a@b.test', 'admin']],
+    ['laravel_auth_acting_as', { userId: 7, guard: 'admin' }, [7, 'admin']],
+    ['laravel_auth_login', { email: 'a@b.test' }, ['a@b.test', 'web']],
+  ])('%s %j sends the guard to the page', async (name, args, expected) => {
+    const evaluated: unknown[][] = [];
+    const page = { evaluate: async (_fn: unknown, ...a: unknown[]) => { evaluated.push(a); }, reload: async () => null };
+    const mcp = new PuppeteerMCPServer();
+    (mcp as any).activeSessions.set('s', { instance: {}, tools: {}, laravel: new LaravelHerdIntegration(page as any) });
+    const client = await connect(mcp);
+
+    const result: any = await client.callTool({ name, arguments: { ...args, sessionId: 's' } });
+    await client.close();
+
+    expect(result.isError).toBeFalsy();
+    expect(evaluated).toEqual([expected]);
+  });
+});
+
+describe('sessionId', () => {
+  const sessionTools = ['navigate', 'screenshot', 'interact', 'execute', 'wait_for', 'laravel_auth_login',
+    'laravel_auth_acting_as', 'laravel_db_seed', 'laravel_route_visit', 'laravel_artisan', 'get_page_info'];
+
+  test('every session tool declares it, so clients can use sessions other than "default"', async () => {
+    const client = await connect();
+    const { tools } = await client.listTools();
+    await client.close();
+    const declaring = tools.filter((t: any) => t.inputSchema.properties?.sessionId?.type === 'string').map(t => t.name);
+    expect(declaring).toEqual(expect.arrayContaining(sessionTools));
+  });
+
+  test('a non-string sessionId is refused', async () => {
+    const { isError, text } = await call('navigate', { url: 'demo', sessionId: 5 });
+    expect(isError).toBe(true);
+    expect(text).toContain('sessionId must be string');
   });
 });

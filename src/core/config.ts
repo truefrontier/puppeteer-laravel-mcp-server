@@ -1,13 +1,19 @@
 import dotenv from 'dotenv';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { ServerConfig, BrowserPoolConfig } from './types.js';
 
-dotenv.config();
+// Read .env from the package folder, not the current folder. MCP clients start
+// the server wherever they like, and a .env there (say, in a repo the agent is
+// working on) must not pick settings such as CHROME_PATH.
+dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 export const serverConfig: ServerConfig = {
   browserPoolSize: parseInt(process.env.BROWSER_POOL_SIZE || '5'),
   browserTimeout: parseInt(process.env.BROWSER_TIMEOUT || '30000'),
   headless: process.env.HEADLESS === 'true',
   chromePath: process.env.CHROME_PATH || undefined,
+  chromeNoSandbox: process.env.CHROME_NO_SANDBOX === 'true',
   herdDirectory: process.env.HERD_DIRECTORY || '~/Herd',
   defaultDomainSuffix: process.env.DEFAULT_DOMAIN_SUFFIX || '.test',
   sslEnabled: process.env.SSL_ENABLED === 'true',
