@@ -88,7 +88,11 @@
      - the SDK, to 1.32.2 (which also fixes the `zod` advisory);
      - Puppeteer, to 25 (for `extract-zip`).
    - The repo pinned both down on purpose for Node compatibility (`1638c9b`, `3d51af3`), so each upgrade needs its own test pass with a real browser.
-   - I did not check whether the SDK advisories are reachable in stdio-only use.
+   - **The practical risk of these two is low here:**
+     - The SDK's own advisories cover HTTP only: DNS-rebinding protection for HTTP server transports, and cross-origin redirects in HTTP client transports. This server runs over stdio and has no HTTP transport.
+     - `zod` would be reached only through messages from the local MCP client, which is already trusted.
+     - `extract-zip` runs only when Puppeteer downloads Chrome.
+   - So upgrading can wait for a release that needs it anyway.
 8. **The install wrappers run an unpinned package.**
    - `install-claude-desktop.sh:15` and `install-claude-desktop-user.sh:19` both run `exec npx -y @truefrontier/puppeteer-laravel-mcp-server`.
    - Every launch runs whatever version is newest on npm. A bad publish, or a taken-over npm account, reaches every user at their next start.
