@@ -14,13 +14,12 @@ export class BrowserPool {
         const launchConfig: any = {
           headless: serverConfig.headless,
           args: [
-            '--no-sandbox',
-            '--disable-setuid-sandbox',
+            // Chrome's sandbox stays on: navigate opens any URL. Only a Linux
+            // container running as root needs it off (CHROME_NO_SANDBOX=true).
+            ...(serverConfig.chromeNoSandbox ? ['--no-sandbox', '--disable-setuid-sandbox'] : []),
             '--disable-dev-shm-usage',
             '--disable-gpu',
             '--no-first-run',
-            '--no-zygote',
-            '--single-process',
             '--disable-background-timer-throttling',
             '--disable-backgrounding-occluded-windows',
             '--disable-renderer-backgrounding',
@@ -89,7 +88,9 @@ export class BrowserPool {
     // Enable console logging if debug mode is on
     if (serverConfig.debugConsoleLogs) {
       page.on('console', (msg) => {
-        console.log(`[Browser Console ${instance.id}]:`, msg.text());
+        // stderr, never stdout: in stdio mode stdout carries the MCP protocol,
+        // and this text is chosen by the page.
+        console.error(`[Browser Console ${instance.id}]:`, msg.text());
       });
 
       page.on('pageerror', (error) => {
