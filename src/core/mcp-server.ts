@@ -516,7 +516,7 @@ export class PuppeteerMCPServer {
   // Laravel integration methods
   private async laravelAuthLogin(sessionId: string | undefined, email: string, options: any = {}) {
     const { laravel } = await this.getSession(sessionId);
-    await laravel.loginAs(email, options);
+    await laravel.loginAs(email, { guardName: options.guard });
 
     return {
       content: [
@@ -530,7 +530,7 @@ export class PuppeteerMCPServer {
 
   private async laravelAuthActingAs(sessionId: string | undefined, userId: number, options: any = {}) {
     const { laravel } = await this.getSession(sessionId);
-    await laravel.actingAs(userId, options);
+    await laravel.actingAs(userId, { guardName: options.guard });
 
     return {
       content: [
