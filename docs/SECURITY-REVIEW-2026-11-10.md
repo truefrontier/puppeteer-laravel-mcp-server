@@ -12,7 +12,8 @@
   - a fifth must-fix: page console text written to stdout, the MCP protocol channel (#16);
   - the sandbox (#5);
   - the `.env` folder (#6);
-  - the ignored `guard` (#14).
+  - the ignored `guard` (#14);
+  - the undeclared `sessionId` (#11).
 - **One functional bug turned up on the way.** Herd has no `artisan` command, so every Artisan-based tool fails against real Herd.
 - **Nothing is published.** Users of `npx @truefrontier/puppeteer-laravel-mcp-server` get these fixes only after a new npm version ships. That is Kevin's call.
 
@@ -98,7 +99,7 @@
 10. **Artisan itself can run code.**
     - `laravel_artisan` still accepts `tinker --execute=...` and any custom command. That is what an Artisan tool is for.
     - If the agent shouldn't have that power, add an allowlist (for example, an env var listing allowed commands).
-11. **Most tools don't declare `sessionId`.**
+11. **Most tools don't declare `sessionId`.** *Fixed on `overflow/mcp-hardening`: every session tool now declares it.*
     - Every tool except `get_pool_stats` reads `args.sessionId`, but only `destroy_session` and `get_page_info` list it in `inputSchema` (`mcp-server.ts:221-240`).
     - Clients that follow the schema always use the shared `default` session.
 12. **The README still overclaims elsewhere.**

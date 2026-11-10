@@ -71,3 +71,22 @@ describe('laravel auth tools', () => {
     expect(evaluated).toEqual([expected]);
   });
 });
+
+describe('sessionId', () => {
+  const sessionTools = ['navigate', 'screenshot', 'interact', 'execute', 'wait_for', 'laravel_auth_login',
+    'laravel_auth_acting_as', 'laravel_db_seed', 'laravel_route_visit', 'laravel_artisan', 'get_page_info'];
+
+  test('every session tool declares it, so clients can use sessions other than "default"', async () => {
+    const client = await connect();
+    const { tools } = await client.listTools();
+    await client.close();
+    const declaring = tools.filter((t: any) => t.inputSchema.properties?.sessionId?.type === 'string').map(t => t.name);
+    expect(declaring).toEqual(expect.arrayContaining(sessionTools));
+  });
+
+  test('a non-string sessionId is refused', async () => {
+    const { isError, text } = await call('navigate', { url: 'demo', sessionId: 5 });
+    expect(isError).toBe(true);
+    expect(text).toContain('sessionId must be string');
+  });
+});

@@ -19,6 +19,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const packageJson = JSON.parse(readFileSync(join(__dirname, '../../package.json'), 'utf-8'));
 
+// Tools that act on a browser session take an optional sessionId from
+// create_session. Without one they use a shared "default" session.
+const SESSION_ID = { type: 'string', description: 'Session ID from create_session (default: a shared "default" session)' };
+
 const TOOLS: Tool[] = [
   // Core browser automation tools
   {
@@ -27,6 +31,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         url: { type: 'string', description: 'URL to navigate to' },
         waitUntil: { 
           type: 'string', 
@@ -51,6 +56,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         path: { type: 'string', description: 'Optional file path' },
         type: { type: 'string', enum: ['png', 'jpeg', 'webp'], description: 'Image format' },
         quality: { type: 'number', description: 'Image quality (0-100)' },
@@ -73,6 +79,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         selector: { type: 'string', description: 'CSS selector for element' },
         action: { 
           type: 'string', 
@@ -91,6 +98,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         script: { type: 'string', description: 'JavaScript code to execute' },
         args: { type: 'array', description: 'Arguments to pass to script' }
       },
@@ -103,6 +111,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         selector: { type: 'string', description: 'CSS selector to wait for' },
         timeout: { type: 'number', description: 'Timeout in milliseconds' },
         visible: { type: 'boolean', description: 'Wait for element to be visible' },
@@ -119,6 +128,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         email: { type: 'string', description: 'User email to authenticate as' },
         guard: { type: 'string', description: 'Laravel guard name' }
       },
@@ -131,6 +141,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         userId: { type: 'number', description: 'User ID to act as' },
         guard: { type: 'string', description: 'Laravel guard name' }
       },
@@ -143,6 +154,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         seeder: { type: 'string', description: 'Seeder class name' },
         database: { type: 'string', description: 'Database connection name' }
       },
@@ -155,6 +167,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         routeName: { type: 'string', description: 'Laravel route name' },
         params: { type: 'object', description: 'Route parameters' }
       },
@@ -167,6 +180,7 @@ const TOOLS: Tool[] = [
     inputSchema: {
       type: 'object',
       properties: {
+        sessionId: SESSION_ID,
         command: { type: 'string', description: 'Artisan command' },
         args: { type: 'array', items: { type: 'string' }, description: 'Command arguments' }
       },
@@ -219,7 +233,7 @@ const TOOLS: Tool[] = [
 
 // Checks arguments against the subset of JSON Schema the tool list uses: type,
 // enum, required, properties and array items. Keys a schema doesn't declare
-// (like sessionId on most tools) pass through.
+// pass through.
 type Schema = { type?: string; enum?: unknown[]; required?: string[]; properties?: Record<string, Schema>; items?: Schema };
 
 function schemaErrors(schema: Schema, value: unknown, at: string): string[] {
