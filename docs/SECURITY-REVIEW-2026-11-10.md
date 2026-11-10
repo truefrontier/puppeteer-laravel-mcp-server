@@ -108,11 +108,15 @@
 
 ## Functional bugs found on the way (not security)
 
-13. **Herd has no `artisan` command.**
-    - `herd list` on this Mac (Nov 10, 2026) shows `php`, `composer` and `tinker`, but no `artisan`.
-    - So `laravel_artisan`, `laravel_db_seed` and the cache and queue helpers all fail with `Command "artisan" is not defined`.
-    - Likely fix: run `herd php artisan ...` from the site's folder.
-    - I did not check whether `herd` accepts `--site=`.
+13. **Herd has no `artisan` command, and `--site` doesn't do what the code assumes.**
+    - `herd list` on this Mac (Nov 10, 2026) shows `php`, `composer` and `tinker`, but no `artisan`. So `laravel_artisan`, `laravel_db_seed` and the cache and queue helpers all fail with `Command "artisan" is not defined`.
+    - `herd help php` and `herd help composer`: `--site=SITE` only picks which PHP version to use. The command still runs in the current folder, which is wherever the MCP client started the server.
+    - `herd help secure`: there is no `--site` option. So `secureSite` and `unsecureSite`, which always add `--site=<site>` when a site is set, fail with an unknown-option error.
+    - **Careful with the obvious fix.** Changing `artisan` to `php artisan` would run `migrate:fresh` or `db:seed` in the server's current folder, which could be a different project. A correct fix has to:
+      - find the site's folder (for example `HERD_DIRECTORY/<site>`, or ask `herd`);
+      - run `herd php artisan ...` with that folder as `cwd`;
+      - pass Artisan's own options after `--`, so Herd doesn't read them as its own;
+      - test all of this against real Herd.
 14. **The `guard` argument is ignored.** *Fixed on `overflow/mcp-hardening`.*
     - Dispatch passes the raw arguments (`guard`) to `loginAs` and `actingAs`, which read `guardName` (`mcp-server.ts:289`, `:292`; `LaravelAuthConfig` in `src/core/types.ts`).
     - So every login uses the `web` guard.
