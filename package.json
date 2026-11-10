@@ -19,7 +19,7 @@
     "start": "npm run build && node dist/index.js",
     "dev": "tsc --watch & nodemon dist/index.js",
     "watch": "tsc --watch",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:unit": "jest --testPathPattern=unit",
     "test:integration": "jest --testPathPattern=integration",
     "test:visual": "jest --testPathPattern=visual",
