@@ -1,8 +1,8 @@
 import { Page } from 'puppeteer';
 import { BrowserInstance, NavigationOptions, ScreenshotOptions, InteractionOptions, WaitForOptions, DebugInfo } from '../core/types.js';
 import { serverConfig } from '../core/config.js';
-import { readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { mkdirSync, writeFileSync } from 'fs';
+import { dirname, join, resolve, sep } from 'path';
 
 export class PuppeteerTools {
   private debugInfo: DebugInfo[] = [];
@@ -99,6 +99,14 @@ export class PuppeteerTools {
     await this.addVisualDebug('Taking screenshot', 'info');
 
     try {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = options.path || `screenshot-${timestamp}.png`;
+      const screenshotDir = join(process.cwd(), 'screenshots');
+      const filepath = resolve(screenshotDir, filename);
+      if (!filepath.startsWith(screenshotDir + sep)) {
+        throw new Error(`Screenshot path must stay inside ${screenshotDir}: ${filename}`);
+      }
+
       const screenshotBuffer = await this.page.screenshot({
         type: options.type || 'png',
         quality: options.quality,
@@ -106,17 +114,7 @@ export class PuppeteerTools {
         clip: options.clip,
       });
 
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = options.path || `screenshot-${timestamp}.png`;
-      const filepath = join(process.cwd(), 'screenshots', filename);
-
-      // Ensure screenshots directory exists
-      const { existsSync, mkdirSync } = await import('fs');
-      const screenshotDir = join(process.cwd(), 'screenshots');
-      if (!existsSync(screenshotDir)) {
-        mkdirSync(screenshotDir, { recursive: true });
-      }
-
+      mkdirSync(dirname(filepath), { recursive: true });
       writeFileSync(filepath, screenshotBuffer);
       
       this.addDebugInfo(`Screenshot saved: ${filepath}`, 'info');
