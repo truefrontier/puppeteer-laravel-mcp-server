@@ -34,10 +34,12 @@ This MCP server bridges the gap between AI-powered automation and modern Laravel
 - **Connection Pooling**: Optimized browser instance management (100-200MB per instance)
 
 ### Security Features
-- **OAuth 2.1 Compliance**: PKCE support for HTTP transport
-- **Environment-based Authentication**: Secure local development access
-- **Input Validation**: Injection attack prevention with testing flexibility
-- **Granular Permissions**: Scoped access control for team environments
+- **No shell for Herd commands**: Herd and Artisan commands run with an argument list, never through a shell. Artisan command names must look like `migrate` or `db:seed`.
+- **Argument checks**: every tool call is checked against that tool's `inputSchema` (types, enums, required fields) before it runs.
+- **Screenshots stay in `./screenshots/`**: a screenshot `path` that resolves anywhere else is refused.
+- **Page scripts get data as arguments**: route names, emails and guard names reach the page as values, not as script source.
+- **By design, not limited**: `execute` runs any JavaScript you give it in the page, and `navigate` opens any URL. Treat page content as untrusted input to your agent.
+- **Not built yet**: the HTTP transport, OAuth 2.1 and permission scopes. The server runs over stdio only.
 
 ### Performance Targets
 - **Response Times**: p95 <200ms for optimal Claude interaction
@@ -227,7 +229,12 @@ npm start
 ```
 
 ### Verification
-Test the server with the included test script:
+Run the unit tests (no browser launches and Herd never runs):
+```bash
+npm test
+```
+
+Test the server end to end with the included test script:
 ```bash
 node test-mcp.js
 ```
