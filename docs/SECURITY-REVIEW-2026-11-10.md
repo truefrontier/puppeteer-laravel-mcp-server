@@ -78,13 +78,16 @@
    - If a client starts the server inside an untrusted repo, that repo's `.env` picks what runs.
    - Fix: load `.env` from the package folder, or take `CHROME_PATH` only from the real environment.
 7. **Dependencies with advisories.**
-   - `npm audit --omit=dev` (Nov 10, 2026) reports:
+   - `npm audit --omit=dev` (Nov 10, 2026) on the lockfile reports:
      - critical: `basic-ftp`;
      - high: `@modelcontextprotocol/sdk` 0.5.0 (`<=1.31.0`), `tar-fs`, `ws`, `extract-zip`, `js-yaml`, `ip-address` and `zod`;
      - moderate: `uuid`.
-   - Most arrive through Puppeteer 22's download and proxy code.
-   - I did not check which advisories are reachable in stdio-only use.
-   - The repo pinned both packages down on purpose for Node compatibility (`1638c9b`, `3d51af3`), so upgrading needs its own test pass.
+   - **Most of these don't reach npm users.** `package-lock.json` isn't published (`files` is `["dist"]`), so `npx` installs resolve fresh versions within the `package.json` ranges. `npm audit fix` shows in-range fixes for `basic-ftp`, `tar-fs`, `ws`, `js-yaml`, `ip-address` and `uuid`. A lockfile-only update would help only people working in this repo.
+   - **Two need a breaking upgrade, and users do carry these:**
+     - the SDK, to 1.32.2 (which also fixes the `zod` advisory);
+     - Puppeteer, to 25 (for `extract-zip`).
+   - The repo pinned both down on purpose for Node compatibility (`1638c9b`, `3d51af3`), so each upgrade needs its own test pass with a real browser.
+   - I did not check whether the SDK advisories are reachable in stdio-only use.
 8. **The install wrappers run an unpinned package.**
    - `install-claude-desktop.sh:15` and `install-claude-desktop-user.sh:19` both run `exec npx -y @truefrontier/puppeteer-laravel-mcp-server`.
    - Every launch runs whatever version is newest on npm. A bad publish, or a taken-over npm account, reaches every user at their next start.
