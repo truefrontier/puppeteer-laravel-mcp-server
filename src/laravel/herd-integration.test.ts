@@ -1,4 +1,4 @@
-import { chmodSync, existsSync, mkdtempSync, readFileSync, writeFileSync } from 'fs';
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import vm from 'vm';
@@ -52,6 +52,7 @@ describe('Herd commands run without a shell', () => {
     herd = fakeHerd();
     bin = join(herd.dir, 'herd');
   });
+  afterEach(() => rmSync(herd.dir, { recursive: true, force: true }));
 
   test('artisan arguments reach herd as literal text, not as shell commands', async () => {
     const laravel = new LaravelHerdIntegration({} as any, 'demo', bin);

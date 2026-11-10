@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, realpathSync } from 'fs';
+import { existsSync, mkdtempSync, realpathSync, rmSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { PuppeteerTools } from './puppeteer-tools.js';
@@ -14,7 +14,10 @@ describe('screenshot path', () => {
     const page = { screenshot: async () => Buffer.from('png'), evaluate: async () => undefined };
     tools = new PuppeteerTools({} as any, page as any);
   });
-  afterEach(() => process.chdir(originalCwd));
+  afterEach(() => {
+    process.chdir(originalCwd);
+    rmSync(work, { recursive: true, force: true });
+  });
 
   test('a relative name is saved under screenshots/', async () => {
     await expect(tools.screenshot({ path: 'home.png' })).resolves.toBe(join(work, 'screenshots', 'home.png'));
